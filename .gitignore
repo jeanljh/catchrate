@@ -1,0 +1,23 @@
+# Dependencies and build output
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# catchrate and Playwright run output
+.catchrate/
+test-results/
+playwright-report/
+blob-report/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.log

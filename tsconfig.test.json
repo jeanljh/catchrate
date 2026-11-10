@@ -1,0 +1,15 @@
+{
+  // Type-checks the tests and the demo specs. Run `npm run build` first: tests
+  // import the compiled package from dist/, exactly as users do.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "erasableSyntaxOnly": true,
+    "allowImportingTsExtensions": true
+  },
+  "include": ["test", "examples"]
+}

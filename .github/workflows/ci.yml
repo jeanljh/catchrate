@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Least privilege: jobs only read the repository.
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Third-party actions are pinned to full commit SHAs (tags can be moved);
+# Dependabot keeps the SHAs and version comments up to date.
+jobs:
+  test:
+    name: Build and unit tests (Node ${{ matrix.node }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            node: 22
+          - os: ubuntu-latest
+            node: 24
+          - os: windows-latest
+            node: 24
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Fail on high or critical advisories in runtime dependencies
+        run: npm audit --omit=dev --audit-level=high
+      - name: Verify package signatures and provenance
+        run: npm ci --ignore-scripts && npm audit signatures
+
+  demo:
+    name: End-to-end demo audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - name: Audit the demo shop
+        run: npm run demo:audit
+      - name: Heal check must flag the weakened test (exit code 1)
+        shell: bash
+        run: |
+          set +e
+          npm run demo:heal
+          code=$?
+          if [ "$code" -ne 1 ]; then
+            echo "Expected the diff to exit 1 for the weakened test, got $code"
+            exit 1
+          fi
+      - name: Recordings must not contain the demo's fake session token
+        shell: bash
+        run: |
+          if grep -rq "demo-session-1f9c2e7a4b" examples/shop/.catchrate/recordings; then
+            echo "Secret leaked into recordings"
+            exit 1
+          fi
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: demo-reports
+          # .catchrate is a hidden folder; upload-artifact skips those unless told otherwise.
+          include-hidden-files: true
+          path: |
+            examples/shop/.catchrate/*.html
+            examples/shop/.catchrate/*.md
+            examples/shop/.catchrate/*.json
+          if-no-files-found: error
+          retention-days: 14

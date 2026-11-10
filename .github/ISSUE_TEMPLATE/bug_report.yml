@@ -1,0 +1,48 @@
+name: Bug report
+description: Something in catchrate doesn't work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please don't paste API keys or private response data. For security problems, use the Security tab instead.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you expected, and what you got instead.
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command and output
+      description: The exact command you ran and the relevant output (for example, the lines from report.md).
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: A small spec or repository that shows the problem, if you can.
+  - type: dropdown
+    id: generator
+    attributes:
+      label: Mutant generator
+      options:
+        - Offline heuristics (default)
+        - Claude (--llm / --provider claude)
+        - OpenAI-compatible API (--provider openai)
+        - Local model (--provider ollama / lmstudio)
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: catchrate, Node.js, @playwright/test, and your OS
+      placeholder: "catchrate 0.1.0, Node 24.2, @playwright/test 1.65.0, Windows 11"
+    validations:
+      required: true

@@ -1,0 +1,72 @@
+{
+  "name": "catchrate",
+  "version": "0.1.0",
+  "description": "Measure whether your Playwright E2E tests would catch realistic backend bugs, by injecting semantic mutants into network responses.",
+  "keywords": [
+    "playwright",
+    "e2e",
+    "end-to-end-testing",
+    "mutation-testing",
+    "test-quality",
+    "test-automation",
+    "qa",
+    "sdet",
+    "llm",
+    "claude"
+  ],
+  "homepage": "https://github.com/jeanljh/catchrate#readme",
+  "bugs": {
+    "url": "https://github.com/jeanljh/catchrate/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeanljh/catchrate.git"
+  },
+  "license": "MIT",
+  "author": "jeanljh",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./fixture": {
+      "types": "./dist/fixture.d.ts",
+      "default": "./dist/fixture.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "catchrate": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\"",
+    "typecheck": "npm run build && tsc -p tsconfig.test.json",
+    "pretest": "npm run build",
+    "test": "node --test \"test/*.test.ts\"",
+    "demo:audit": "node dist/cli.js audit --cwd examples/shop",
+    "demo:heal": "node dist/cli.js run --cwd examples/shop --config examples/shop/playwright.healed.config.ts --out examples/shop/.catchrate/report-healed.json && node dist/cli.js diff examples/shop/.catchrate/report.json examples/shop/.catchrate/report-healed.json --html examples/shop/.catchrate/heal-diff.html",
+    "prepare": "npm run build"
+  },
+  "engines": {
+    "node": ">=20.12"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.6.0"
+  },
+  "peerDependencies": {
+    "@playwright/test": ">=1.45"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0",
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2"
+  }
+}

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Demo Shop</title>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { text-align: left; padding: 0.3rem 0; }
+      td.num, th.num { text-align: right; }
+      .error { color: #b00020; }
+      .ok { color: #0a7d32; }
+    </style>
+  </head>
+  <body>
+    <h1>Demo Shop</h1>
+    <p id="user">Loading account…</p>
+    <h2>Your cart</h2>
+    <table aria-label="Cart">
+      <thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Line total</th></tr></thead>
+      <tbody id="items"></tbody>
+    </table>
+    <dl>
+      <dt>Subtotal</dt><dd data-testid="subtotal"></dd>
+      <dt>Discount</dt><dd data-testid="discount"></dd>
+      <dt>Total</dt><dd data-testid="total"></dd>
+    </dl>
+    <button id="checkout">Checkout</button>
+    <p id="result" role="status"></p>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
